@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Solo Leveling UI</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #000814;
+      color: #00bfff;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height:  100%;
+      background: radial-gradient(circle at center, rgba(0,191,255,0.05), transparent);
+      z-index: -1;
+    }
+
+    .system-frame {
+      margin: auto;
+      height: 92%;
+      width: 94%;
+      border: 2px solid #00bfff;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #00bfff;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: space-around;
+      padding: 10px;
+      border-bottom: 1px solid #00bfff;
+      background-color: rgba(0, 191, 255, 0.05);
+    }
+
+    .tab {
+      font-size: 14px;
+      opacity: 0.7;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      font-weight: bold;
+      opacity: 1;
+      text-shadow: 0 0 5px #00bfff;
+    }
+
+    .content {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+    }
+
+    .stat, .money-box {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      margin: 10px 0;
+      align-items: center;
+    }
+
+    .section h3 {
+      font-size: 16px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #00bfff;
+      padding-bottom: 5px;
+      text-shadow: 0 0 4px #00bfff;
+    }
+
+    .btn {
+      margin: 0 3px;
+      padding: 6px 12px;
+      background-color: #00bfff;
+      color: #000814;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 0 8px #00bfff;
+    }
+
+    input, select {
+      padding: 5px;
+      border: 1px solid #00bfff;
+      background: #000;
+      color: #00bfff;
+      border-radius: 4px;
+      margin-right: 5px;
+      margin-top: 5px;
+    }
+
+    .exp-bar {
+      width: 100%;
+      height: 10px;
+      background-color: #111;
+      border-radius: 5px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+
+    .exp-fill {
+      height: 100%;
+      background-color: #00bfff;
+      width: 0%;
+      transition: width 0.4s ease-in-out;
+    }
+
+    .exp-text {
+      font-size: 12px;
+    }
+
+    .avatar {
+      width: 110px;
+      height: 110px;
+      border-radius: 8px;
+      background: #111;
+      box-shadow: 0 0 15px #00bfff80;
+      margin: 10px 0;
+    }
+
+    .level {
+      font-size: 18px;
+      margin: 10px 0;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      margin: 6px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="system-frame">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('status')">STATUS</div>
+      <div class="tab" onclick="switchTab('quests')">QUESTS</div>
+      <div class="tab" onclick="switchTab('money')">MONEY</div>
+      <div class="tab" onclick="switchTab('stats')">STATS</div>
+    </div>
+
+    <div class="content" id="status-tab">
+      <div class="avatar"></div>
+      <div class="level" id="level"></div>
+      <div class="exp-bar"><div class="exp-fill" id="exp-fill"></div></div>
+      <div class="exp-text" id="exp-text"></div>
+      <div class="section">
+        <h3>RANK</h3>
+        <div class="stat"><span>Current Rank</span><span id="rank">E</span></div>
+      </div>
+      <div class="section">
+        <h3>WORKOUT</h3>
+        <div id="workout-list"></div>
+        <input id="workoutName" placeholder="Workout Name" />
+        <input id="workoutTarget" type="number" placeholder="Target" />
+        <button class="btn" onclick="addWorkout()">Add Workout</button>
+      </div>
+    </div>
+
+    <div class="content hidden" id="quests-tab">
+      <div class="section">
+        <h3>QUESTS</h3>
+        <div id="quest-list"></div>
+        <input id="questName" placeholder="Quest Name" />
+        <select id="questDifficulty">
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+        <button class="btn" onclick="addQuest()">Add Quest</button>
+      </div>
+    </div>
+
+    <div class="content hidden" id="money-tab">
+      <h3>💰 Money</h3>
+      <div class="money-box"><span>Total Money:</span><span id="money">₹0</span></div>
+      <input id="moneyInput" type="number" placeholder="Amount" />
+      <button class="btn" onclick="addMoney()">Add</button>
+      <button class="btn" onclick="subtractMoney()">Subtract</button>
+    </div>
+
+    <div class="content hidden" id="stats-tab">
+      <h3>STATS</h3>
+      <div class="stat">
+        <span>Strength</span>
+        <span>
+          <button class="btn" onclick="changeStat('strength', -1)">−</button>
+          <span id="strength-val">0</span>
+          <button class="btn" onclick="changeStat('strength', 1)">+</button>
+        </span>
+      </div>
+      <div class="stat">
+        <span>Intelligence</span>
+        <span>
+          <button class="btn" onclick="changeStat('intelligence', -1)">−</button>
+          <span id="intelligence-val">0</span>
+          <button class="btn" onclick="changeStat('intelligence', 1)">+</button>
+        </span>
+      </div>
+      <div class="stat">
+        <span>Discipline</span>
+        <span>
+          <button class="btn" onclick="changeStat('discipline', -1)">−</button>
+          <span id="discipline-val">0</span>
+          <button class="btn" onclick="changeStat('discipline', 1)">+</button>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let data = JSON.parse(localStorage.getItem("soloSystem")) || {
+      level: 1,
+      exp: 0,
+      expNeeded: 100,
+      money: 0,
+      workouts: [],
+      quests: [],
+      completedWorkouts: 0,
+      lastReset: new Date().toDateString(),
+      strength: 0,
+      intelligence: 0,
+      discipline: 0
+    };
+
+    function save() {
+      localStorage.setItem("soloSystem", JSON.stringify(data));
+    }
+
+    function gainExp(amount) {
+      data.exp += amount;
+      while (data.exp >= data.expNeeded) {
+        data.exp -= data.expNeeded;
+        data.level++;
+        data.expNeeded *= 2;
+      }
+      updateUI();
+      save();
+    }
+
+    function updateUI() {
+      document.getElementById("level").innerText = `LEVEL ${data.level}`;
+      document.getElementById("exp-text").innerText = `EXP: ${data.exp} / ${data.expNeeded}`;
+      document.getElementById("exp-fill").style.width = `${(data.exp / data.expNeeded) * 100}%`;
+      document.getElementById("money").innerText = `₹${data.money}`;
+      document.getElementById("rank").innerText = getRank();
+      updateWorkoutUI();
+      updateQuestUI();
+      updateStatsUI();
+    }
+
+    function updateStatsUI() {
+      document.getElementById("strength-val").innerText = data.strength;
+      document.getElementById("intelligence-val").innerText = data.intelligence;
+      document.getElementById("discipline-val").innerText = data.discipline;
+    }
+
+    function changeStat(stat, amount) {
+      if (!data[stat]) data[stat] = 0;
+      const newVal = data[stat] + amount;
+      if (newVal >= 0) {
+        data[stat] = newVal;
+        updateStatsUI();
+        save();
+      }
+    }
+
+    function getRank() {
+      if (data.level >= 25) return "S";
+      if (data.level >= 20) return "A";
+      if (data.level >= 15) return "B";
+      if (data.level >= 10) return "C";
+      if (data.level >= 5) return "D";
+      return "E";
+    }
+
+    function addWorkout() {
+      const name = document.getElementById("workoutName").value.trim();
+      const target = parseInt(document.getElementById("workoutTarget").value);
+      if (name && !isNaN(target) && target > 0) {
+        data.workouts.push({ name, target });
+        updateWorkoutUI();
+        save();
+      }
+    }
+
+    function completeWorkout(index) {
+      data.workouts.splice(index, 1);
+      data.completedWorkouts++;
+      if (data.completedWorkouts >= 6) {
+        gainExp(50);
+        data.completedWorkouts = 0;
+      }
+      updateWorkoutUI();
+      save();
+    }
+
+    function updateWorkoutUI() {
+      const list = document.getElementById("workout-list");
+      list.innerHTML = "";
+      data.workouts.forEach((w, i) => {
+        list.innerHTML += `<div class='item'><span>${w.name} — 0 / ${w.target}</span><button class='btn' onclick='completeWorkout(${i})'>Done</button></div>`;
+      });
+    }
+
+    function addQuest() {
+      const name = document.getElementById("questName").value.trim();
+      const diff = document.getElementById("questDifficulty").value;
+      if (name) {
+        data.quests.push({ name, difficulty: diff });
+        updateQuestUI();
+        save();
+      }
+    }
+
+    function completeQuest(index) {
+      const q = data.quests[index];
+      let xp = q.difficulty === "hard" ? 100 : q.difficulty === "medium" ? 50 : 20;
+      gainExp(xp);
+      data.quests.splice(index, 1);
+      updateQuestUI();
+      save();
+    }
+
+    function updateQuestUI() {
+      const list = document.getElementById("quest-list");
+      list.innerHTML = "";
+      data.quests.forEach((q, i) => {
+        list.innerHTML += `<div class='item'><span>${q.name} (${q.difficulty})</span><button class='btn' onclick='completeQuest(${i})'>Complete</button></div>`;
+      });
+    }
+
+    function addMoney() {
+      const amount = parseInt(document.getElementById("moneyInput").value);
+      if (!isNaN(amount) && amount > 0) {
+        data.money += amount;
+        updateUI();
+        save();
+      }
+    }
+
+    function subtractMoney() {
+      const amount = parseInt(document.getElementById("moneyInput").value);
+      if (!isNaN(amount) && amount > 0 && data.money >= amount) {
+        data.money -= amount;
+        updateUI();
+        save();
+      }
+    }
+
+    function switchTab(tabName) {
+      ["status", "quests", "money", "stats"].forEach(t => {
+        document.getElementById(`${t}-tab`).classList.add("hidden");
+        document.querySelector(`.tab:nth-child(${["status","quests","money","stats"].indexOf(t)+1})`).classList.remove("active");
+      });
+      document.getElementById(`${tabName}-tab`).classList.remove("hidden");
+      document.querySelector(`.tab:nth-child(${["status","quests","money","stats"].indexOf(tabName)+1})`).classList.add("active");
+    }
+
+    function checkReset() {
+      const today = new Date().toDateString();
+      if (data.lastReset !== today) {
+        data.workouts = [];
+        data.quests = [];
+        data.completedWorkouts = 0;
+        data.lastReset = today;
+        save();
+      }
+    }
+
+    checkReset();
+    updateUI();
+  </script>
+</body>
+</html>
