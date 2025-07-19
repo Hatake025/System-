@@ -1,6 +1,6 @@
 {
-  "name": "Solo Leveling App",
-  "short_name": "SoloLevel",
+  "name": "System",
+  "short_name": "System",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#000814",
@@ -16,5 +16,6 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "id": "00123"
 }
