@@ -146,6 +146,8 @@
       margin: 6px 0;
     }
   </style>
+  <link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#000000" />
 </head>
 <body>
   <div class="system-frame">
@@ -387,6 +389,15 @@
 
     checkReset();
     updateUI();
+  </script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(reg => console.log('Service Worker registered', reg))
+        .catch(err => console.error('Service Worker registration failed', err));
+    });
+  }
   </script>
 </body>
 </html>
